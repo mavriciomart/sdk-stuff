@@ -1,0 +1,19 @@
+{
+  "name": "sdk-test",
+  "version": "1.0.0",
+  "main": "public/index.htm",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel public/index.html"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.3.0",
+    "rxjs": "^7.1.0",
+    "yaml": "^1.10.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.4"
+  }
+}

@@ -1,0 +1,124 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        line-height: 1.9;
+      }
+      code {
+        padding: 4px;
+        border-radius: 8px;
+        background-color: hsl(335, 100%, 96%);
+      }
+      .section {
+        display: flex;
+        gap: 16px;
+      }
+      .card {
+        height: fit-content;
+        padding: 16px;
+        border-radius: 16px;
+        background-color: hsl(0, 0%, 95%);
+      }
+
+      .content {
+        max-height: 480px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <div class="card">
+        <b>Usage</b>
+        <ul>
+          <li>Authenticate using your credentials</li>
+          <li>
+            You can subscribe to an Auth subject with
+            <code>sdk.Auth$.subscribe(data =>{})</code>
+          </li>
+          <li>
+            Open your browser console and use the sdk with
+            <code>sdk.Crossbar.{{module}}.{{method}}</code>, e.g.:
+            <code lang="javascript">
+              await sdk.Crossbar.accounts.GetAbout();
+            </code>
+          </li>
+          <li>You can sign out with <code>sdk.signOut();</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <p>Authentication: <b id="auth-status" /></p>
+
+        <form id="form">
+          <div>
+            <label>Username/email</label>
+            <input name="username" />
+          </div>
+          <div>
+            <label>Password</label>
+            <input name="password" type="password" />
+          </div>
+          <div>
+            <label>Account Name</label>
+            <input name="account" value="Outsource Account" />
+          </div>
+          <button id="auth">Authenticate</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <b>Available methods</b>
+      <div class="content" id="methods"></div>
+    </div>
+    <script src="./../src/index.ts"></script>
+    <script>
+      sdk.Auth$.subscribe((data) => {
+        document.querySelector("#form").style.display = data.authToken
+          ? "none"
+          : "block";
+        document.querySelector("#auth-status").innerHTML = data.authToken
+          ? "Authenticated"
+          : "Unauthenticated";
+      });
+    </script>
+    <script>
+      document.querySelector("#form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const form = new FormData(e.target);
+        const username = form.get("username");
+        const password = form.get("password");
+        const accountName = form.get("account");
+
+        sdk.authenticate(username, password, accountName);
+      });
+    </script>
+    <script>
+      setTimeout(() => {
+        Object.entries(sdk.Crossbar).forEach((tag) => {
+          const title = tag[0];
+          const methods = tag[1];
+          let list = "";
+
+          Object.entries(methods).forEach(
+            (method) => (list += `<li>${method[0]}</li>`)
+          );
+
+          const tagElement = `
+            <details>
+              <summary>${title}</summary>
+              <ul>
+               ${list}
+              </ul>
+            </details>`;
+          document.querySelector("#methods").innerHTML += tagElement;
+        });
+      }, 1000);
+    </script>
+  </body>
+</html>
