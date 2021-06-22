@@ -31,3 +31,8 @@ type HTTPMethod = "delete" | "get" | "patch" | "post" | "put";
 type Path = Record<HTTPMethod, Operation>;
 export type SchemaPaths = Record<string, Path>;
 export type RequestMethods = "POST" | "GET" | "PUT" | "PATCH" | "DELETE";
+
+export type SDKMethodData = {
+  params: { accountId?: string };
+  body: Record<string, unknown>;
+};

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+        gap: 16px;
+        line-height: 1.9;
+      }
+      code {
+        background-color: #ffebf3;
+        border-radius: 8px;
+        padding: 4px;
+      }
+      ul {
+        padding: 16px;
+      }
+      .section {
+        display: flex;
+        gap: 16px;
+      }
+      .card {
+        background-color: #f2f2f2;
+        border-radius: 16px;
+        height: fit-content;
+        padding: 16px;
+      }
+      .content {
+        max-height: 480px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <div class="card">
+        <b>Usage</b>
+        <ul>
+          <li>Authenticate using your credentials</li>
+          <li>
+            You can subscribe to an Auth subject with
+            <code>window.sdk.Auth$.subscribe(data =>{})</code>
+          </li>
+          <li>
+            Open your browser console and use the sdk with
+            <code>window.sdk.Crossbar.{{module}}.{{method}}</code>, e.g.:
+            <code lang="javascript">
+              await window.sdk.Crossbar.accounts.GetAbout();
+            </code>
+          </li>
+          <li>You can sign out with <code>window.sdk.signOut();</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <p>Authentication: <b id="auth-status"></b></p>
+        <form id="form">
+          <div><label>Username/email</label> <input name="username" /></div>
+          <div>
+            <label>Password</label> <input name="password" type="password" />
+          </div>
+          <div>
+            <label>Account Name</label>
+            <input name="account" value="Outsource Account" />
+          </div>
+          <button id="auth">Authenticate</button>
+        </form>
+      </div>
+    </div>
+    <div class="card">
+      <b>Available methods</b>
+      <div class="content" id="methods"></div>
+    </div>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

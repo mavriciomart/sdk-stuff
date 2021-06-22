@@ -1,14 +1,12 @@
 import md5 from "md5";
 import { auth$ } from "./auth";
-import { parseResponse, isTokenInvalid } from "./utils";
-import type { AuthInformation } from "./auth";
-import type { ConfigOptions, RequestMethods } from "./types";
+import { parseResponse, isTokenInvalid } from "./../utils";
+import type { ConfigOptions } from "./../types";
 import type { Subscription } from "rxjs";
 
 type RequestOptions = {
   accountId?: string;
   userId?: string;
-  action?: string;
 };
 
 const createAuthRequest = (
@@ -45,23 +43,12 @@ const createAuthRequest = (
   });
 };
 
-const buildUrl = (
-  url: string,
-  accountId: string | null,
-  userId: string | null
-) => url.replace(":account-id", accountId).replace(":user-id", userId);
-
 export class ApiService {
   config: ConfigOptions;
-  auth: AuthInformation;
   authSubscription: Subscription;
 
   constructor(config: ConfigOptions) {
     this.config = config;
-
-    this.authSubscription = auth$.subscribe((auth) => {
-      this.auth = auth;
-    });
   }
 
   /**
@@ -126,7 +113,7 @@ export class ApiService {
   }
 
   sendRequest(
-    endpoint: string,
+    url: string,
     method: string,
     body: unknown = null,
     options: RequestOptions = {}
@@ -134,7 +121,7 @@ export class ApiService {
     const { config } = this;
 
     const requestPromise = new Promise((resolve, reject) => {
-      const credentials = this.auth;
+      const credentials = auth$.getValue();
 
       const request = (credentials) => {
         const {
@@ -143,11 +130,7 @@ export class ApiService {
           userId: authenticatedUser,
         } = credentials;
 
-        const user = options.userId ?? authenticatedUser;
-        const account = options.accountId ?? authenticatedAccount;
-        const action = options.action ?? null;
-
-        if (!authToken || !account) {
+        if (!authToken) {
           reject("User has not been authorized");
         }
 
@@ -157,24 +140,12 @@ export class ApiService {
           "Content-Type": "application/json",
         };
 
-        const requestUrl = buildUrl(config.host + endpoint, account, user);
-
-        const bodyAction = {
-          ...(action && {
-            action,
-          }),
-        };
-        const bodyData = {
-          ...(body && { data: body }),
-        };
-
         const requestBody = {
-          ...bodyAction,
-          ...bodyData,
+          ...(body && { data: body }),
         };
         const shouldSendBody = Object.keys(requestBody).length;
 
-        fetch(requestUrl, {
+        fetch(config.host + url, {
           method,
           headers,
           ...(shouldSendBody && {
@@ -200,7 +171,7 @@ export class ApiService {
           credentials.accountName,
           credentials.credentials
         )
-          .then(() => request(this.auth))
+          .then(() => request(auth$.getValue()))
           .catch((error) => reject(error));
       }
 

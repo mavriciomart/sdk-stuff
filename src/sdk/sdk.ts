@@ -1,8 +1,8 @@
-import { auth$ } from "./auth";
-import { Config } from "./config";
-import { ApiService } from "./api";
-import { parseSchema } from "./utils";
-import type { ConfigOptions, SchemaPaths } from "./types";
+import { auth$ } from "./services/auth";
+import { Config } from "./services/config";
+import { ApiService } from "./services/api";
+import { camelToSnakeCase, parseSchema } from "./utils";
+import type { ConfigOptions, SchemaPaths, SDKMethodData } from "./types";
 
 class SDK {
   #api: ApiService;
@@ -70,8 +70,30 @@ class SDK {
 
   #getRouteFunction(endpoint: string, method: string) {
     const api = this.#api;
-    return function (body: Record<string, unknown>) {
-      return api.sendRequest(endpoint, method.toUpperCase(), body);
+
+    return function (data: SDKMethodData) {
+      const accountId = auth$.getValue().currentAccountId;
+      const { params = {}, body = null } = data ?? {};
+
+      if (!params.accountId) {
+        params.accountId = accountId;
+      }
+
+      const urlParams = Object.fromEntries(
+        Object.entries(params).map(([k, v]) => [
+          camelToSnakeCase(k).toUpperCase(),
+          v,
+        ])
+      );
+
+      let url = endpoint;
+      for (const [key, value] of Object.entries(urlParams)) {
+        url = url.replace(`{${key}}`, value);
+      }
+
+      return api.sendRequest(url, method.toUpperCase(), body, {
+        accountId: params.accountId,
+      });
     };
   }
 }

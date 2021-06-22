@@ -1,4 +1,4 @@
-import type { ConfigOptions } from "./types";
+import type { ConfigOptions } from "../types";
 
 export class Config {
   host: string;
